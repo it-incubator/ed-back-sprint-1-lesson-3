@@ -3,12 +3,13 @@
   "testEnvironment": "node",
   "moduleFileExtensions": ["ts", "js", "json", "node"],
   "transform": {
-    "^.+\\.tsx?$": ["ts-jest", {
-      "tsconfig": "tsconfig.json"
-    }]
+    "^.+\\.tsx?$": [
+      "ts-jest",
+      {
+        "tsconfig": "tsconfig.json"
+      }
+    ]
   },
-  "testMatch": [
-    "**/__tests__/**/*.spec.ts"
-  ],
+  "testMatch": ["**/__tests__/**/*.spec.ts"],
   "verbose": true
 }

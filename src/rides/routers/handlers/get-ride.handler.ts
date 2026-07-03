@@ -1,10 +1,13 @@
 import { Request, Response } from 'express';
 import { ridesRepository } from '../../repositories/rides.repository';
 import { HttpStatus } from '../../../core/types/http-statuses';
-import { createErrorMessages } from '../../../core/middlewares/validation/input-validtion-result.middleware';
-import { mapToRideViewModelUtil } from '../mappers/map-to-ride-view-model.util';
+import { createErrorMessages } from '../../../core/middlewares/validation/input-validation-result.middleware';
+import { mapToRideViewModel } from '../mappers/map-to-ride-view-model.util';
 
-export async function getRideHandler(req: Request, res: Response) {
+export async function getRideHandler(
+  req: Request<{ id: string }>,
+  res: Response,
+) {
   try {
     const id = req.params.id;
 
@@ -20,10 +23,10 @@ export async function getRideHandler(req: Request, res: Response) {
       return;
     }
 
-    const rideViewModel = mapToRideViewModelUtil(ride);
+    const rideViewModel = mapToRideViewModel(ride);
 
     res.send(rideViewModel);
-  } catch (e: unknown) {
+  } catch {
     res.sendStatus(HttpStatus.InternalServerError);
   }
 }

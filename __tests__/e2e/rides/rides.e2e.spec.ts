@@ -3,11 +3,12 @@ import express from 'express';
 import { setupApp } from '../../../src/setup-app';
 import { HttpStatus } from '../../../src/core/types/http-statuses';
 import { generateBasicAuthToken } from '../../utils/generate-admin-auth-token';
-import { RIDES_PATH } from '../../../src/core/paths/paths';
+import { RIDES_PATH } from '../../../src/core/constants/paths.constants';
 import { clearDb } from '../../utils/clear-db';
 import { runDB, stopDb } from '../../../src/db/mongo.db';
 import { createRide } from '../../utils/rides/create-ride';
 import { getRideById } from '../../utils/rides/get-ride-by-id';
+import { SETTINGS } from '../../../src/settings/config';
 
 describe('Rides API', () => {
   const app = express();
@@ -16,7 +17,7 @@ describe('Rides API', () => {
   const adminToken = generateBasicAuthToken();
 
   beforeAll(async () => {
-    await runDB('mongodb://localhost:27017/ed-back-lessons-uber-test');
+    await runDB(SETTINGS.MONGO_URL);
     await clearDb(app);
   });
 

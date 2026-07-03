@@ -4,9 +4,10 @@ import { setupApp } from '../../../src/setup-app';
 import { generateBasicAuthToken } from '../../utils/generate-admin-auth-token';
 import { HttpStatus } from '../../../src/core/types/http-statuses';
 import { clearDb } from '../../utils/clear-db';
-import { RIDES_PATH } from '../../../src/core/paths/paths';
+import { RIDES_PATH } from '../../../src/core/constants/paths.constants';
 import { Currency } from '../../../src/rides/types/ride';
-import { runDB } from '../../../src/db/mongo.db';
+import { runDB, stopDb } from '../../../src/db/mongo.db';
+import { SETTINGS } from '../../../src/settings/config';
 
 describe('Rides API body validation check', () => {
   const app = express();
@@ -15,8 +16,13 @@ describe('Rides API body validation check', () => {
   const adminToken = generateBasicAuthToken();
 
   beforeAll(async () => {
-    await runDB('mongodb://localhost:27017/ed-back-lessons-uber-test');
+    await runDB(SETTINGS.MONGO_URL);
     await clearDb(app);
+  });
+
+  // Закрываем соединение с БД, чтобы процесс тестов корректно завершался.
+  afterAll(async () => {
+    await stopDb();
   });
 
   it(`❌ should not create ride when incorrect body passed; POST /api/rides'`, async () => {

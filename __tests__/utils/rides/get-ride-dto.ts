@@ -1,4 +1,4 @@
-import { RideInputDto } from '../../../src/rides/dto/ride-input.dto';
+import { RideInputDto } from '../../../src/rides/dto/ride.input.dto';
 import { Currency } from '../../../src/rides/types/ride';
 
 export function getRideDto(driverId: string): RideInputDto {

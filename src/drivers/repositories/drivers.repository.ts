@@ -1,8 +1,10 @@
 import { Driver } from '../types/driver';
-import { DriverInputDto } from '../dto/driver.input-dto';
-import { driverCollection } from '../../db/mongo.db';
 import { ObjectId, WithId } from 'mongodb';
+import { driverCollection } from '../../db/collections';
 
+// Репозиторий отвечает ТОЛЬКО за доступ к данным (CRUD).
+// Он не знает про HTTP и не решает, что делать при "не найдено":
+// операции изменения возвращают boolean, а решение о статусе ответа принимает handler.
 export const driversRepository = {
   async findAll(): Promise<WithId<Driver>[]> {
     return driverCollection.find().toArray();
@@ -17,42 +19,26 @@ export const driversRepository = {
     return { ...newDriver, _id: insertResult.insertedId };
   },
 
-  async update(id: string, dto: DriverInputDto): Promise<void> {
+  // Принимает уже готовый доменный объект (без createdAt) — маппинг из DTO делает handler.
+  // Возвращает true, если водитель найден и обновлён, иначе false.
+  async update(
+    id: string,
+    driver: Omit<Driver, 'createdAt'>,
+  ): Promise<boolean> {
     const updateResult = await driverCollection.updateOne(
-      {
-        _id: new ObjectId(id),
-      },
-      {
-        $set: {
-          name: dto.name,
-          phoneNumber: dto.phoneNumber,
-          email: dto.email,
-          vehicle: {
-            make: dto.vehicleMake,
-            model: dto.vehicleModel,
-            year: dto.vehicleYear,
-            licensePlate: dto.vehicleLicensePlate,
-            description: dto.vehicleDescription,
-            features: dto.vehicleFeatures,
-          },
-        },
-      },
+      { _id: new ObjectId(id) },
+      { $set: driver },
     );
 
-    if (updateResult.matchedCount < 1) {
-      throw new Error('Driver not exist');
-    }
-    return;
+    return updateResult.matchedCount > 0;
   },
 
-  async delete(id: string): Promise<void> {
+  // Возвращает true, если водитель найден и удалён, иначе false.
+  async delete(id: string): Promise<boolean> {
     const deleteResult = await driverCollection.deleteOne({
       _id: new ObjectId(id),
     });
 
-    if (deleteResult.deletedCount < 1) {
-      throw new Error('Driver not exist');
-    }
-    return;
+    return deleteResult.deletedCount > 0;
   },
 };

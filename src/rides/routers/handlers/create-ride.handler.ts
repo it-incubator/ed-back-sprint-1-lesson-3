@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
-import { RideInputDto } from '../../dto/ride-input.dto';
+import { RideInputDto } from '../../dto/ride.input.dto';
 import { driversRepository } from '../../../drivers/repositories/drivers.repository';
 import { HttpStatus } from '../../../core/types/http-statuses';
-import { createErrorMessages } from '../../../core/middlewares/validation/input-validtion-result.middleware';
+import { createErrorMessages } from '../../../core/middlewares/validation/input-validation-result.middleware';
 import { ridesRepository } from '../../repositories/rides.repository';
 import { Ride } from '../../types/ride';
-import { mapToRideViewModelUtil } from '../mappers/map-to-ride-view-model.util';
+import { mapToRideViewModel } from '../mappers/map-to-ride-view-model.util';
+import { mapRideInputDtoToRide } from '../mappers/map-ride-input-dto-to-ride.util';
 
 export async function createRideHandler(
   req: Request<{}, {}, RideInputDto>,
@@ -14,19 +15,22 @@ export async function createRideHandler(
   try {
     const driverId = req.body.driverId;
 
+    // Поездку можно создать только для существующего водителя.
     const driver = await driversRepository.findById(driverId);
 
     if (!driver) {
       res
         .status(HttpStatus.BadRequest)
         .send(
-          createErrorMessages([{ field: 'id', message: 'Driver not found' }]),
+          createErrorMessages([
+            { field: 'driverId', message: 'Driver not found' },
+          ]),
         );
 
       return;
     }
 
-    // Если у водителя сейчас есть заказ, то создать новую поездку нельзя
+    // Бизнес-правило: у водителя не может быть двух активных поездок сразу.
     const activeRide = await ridesRepository.findActiveRideByDriverId(driverId);
 
     if (activeRide) {
@@ -34,41 +38,27 @@ export async function createRideHandler(
         .status(HttpStatus.BadRequest)
         .send(
           createErrorMessages([
-            { field: 'status', message: 'The driver is currently on a job' },
+            { field: 'driverId', message: 'The driver is currently on a job' },
           ]),
         );
 
       return;
     }
 
+    // Проекция DTO + данные водителя -> доменная модель; служебные даты добавляем здесь.
     const newRide: Ride = {
-      clientName: req.body.clientName,
-      driver: {
-        id: req.body.driverId,
-        name: driver.name,
-      },
-      vehicle: {
-        licensePlate: driver.vehicle.licensePlate,
-        name: `${driver.vehicle.make} ${driver.vehicle.model}`,
-      },
-      price: req.body.price,
-      currency: req.body.currency,
+      ...mapRideInputDtoToRide(req.body, driver),
       createdAt: new Date(),
       updatedAt: null,
       startedAt: new Date(),
       finishedAt: null,
-      addresses: {
-        from: req.body.fromAddress,
-        to: req.body.toAddress,
-      },
     };
 
-    const createdRide = await ridesRepository.createRide(newRide);
-
-    const rideViewModel = mapToRideViewModelUtil(createdRide);
+    const createdRide = await ridesRepository.create(newRide);
+    const rideViewModel = mapToRideViewModel(createdRide);
 
     res.status(HttpStatus.Created).send(rideViewModel);
-  } catch (e: unknown) {
+  } catch {
     res.sendStatus(HttpStatus.InternalServerError);
   }
 }

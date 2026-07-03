@@ -3,14 +3,15 @@ import express from 'express';
 import { VehicleFeature } from '../../../src/drivers/types/driver';
 import { setupApp } from '../../../src/setup-app';
 import { HttpStatus } from '../../../src/core/types/http-statuses';
-import { DriverInputDto } from '../../../src/drivers/dto/driver.input-dto';
+import { DriverInputDto } from '../../../src/drivers/dto/driver.input.dto';
 import { generateBasicAuthToken } from '../../utils/generate-admin-auth-token';
 import { getDriverDto } from '../../utils/drivers/get-driver-dto';
 import { clearDb } from '../../utils/clear-db';
 import { createDriver } from '../../utils/drivers/create-driver';
-import { DRIVERS_PATH } from '../../../src/core/paths/paths';
+import { DRIVERS_PATH } from '../../../src/core/constants/paths.constants';
 import { getDriverById } from '../../utils/drivers/get-driver-by-id';
 import { runDB, stopDb } from '../../../src/db/mongo.db';
+import { SETTINGS } from '../../../src/settings/config';
 
 describe('Driver API body validation check', () => {
   const app = express();
@@ -21,7 +22,7 @@ describe('Driver API body validation check', () => {
   const adminToken = generateBasicAuthToken();
 
   beforeAll(async () => {
-    await runDB('mongodb://localhost:27017/ed-back-lessons-uber-test');
+    await runDB(SETTINGS.MONGO_URL);
     await clearDb(app);
   });
 

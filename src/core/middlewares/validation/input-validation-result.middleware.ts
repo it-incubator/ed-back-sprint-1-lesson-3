@@ -4,9 +4,11 @@ import {
   validationResult,
 } from 'express-validator';
 import { NextFunction, Request, Response } from 'express';
-import { ValidationErrorType } from '../../types/validationError';
+import {
+  ValidationErrorType,
+  ValidationErrorDto,
+} from '../../types/validation-error';
 import { HttpStatus } from '../../types/http-statuses';
-import { ValidationErrorDto } from '../../types/validationError.dto';
 
 export const createErrorMessages = (
   errors: ValidationErrorType[],

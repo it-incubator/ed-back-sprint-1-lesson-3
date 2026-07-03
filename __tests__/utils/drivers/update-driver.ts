@@ -1,9 +1,9 @@
 import request from 'supertest';
 import { Express } from 'express';
-import { DriverInputDto } from '../../../src/drivers/dto/driver.input-dto';
+import { DriverInputDto } from '../../../src/drivers/dto/driver.input.dto';
 import { HttpStatus } from '../../../src/core/types/http-statuses';
 import { getDriverDto } from './get-driver-dto';
-import { DRIVERS_PATH } from '../../../src/core/paths/paths';
+import { DRIVERS_PATH } from '../../../src/core/constants/paths.constants';
 import { generateBasicAuthToken } from '../generate-admin-auth-token';
 
 export async function updateDriver(

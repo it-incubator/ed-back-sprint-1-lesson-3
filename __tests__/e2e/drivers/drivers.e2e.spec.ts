@@ -3,15 +3,16 @@ import express from 'express';
 import { VehicleFeature } from '../../../src/drivers/types/driver';
 import { setupApp } from '../../../src/setup-app';
 import { HttpStatus } from '../../../src/core/types/http-statuses';
-import { DriverInputDto } from '../../../src/drivers/dto/driver.input-dto';
-import { DRIVERS_PATH } from '../../../src/core/paths/paths';
+import { DriverInputDto } from '../../../src/drivers/dto/driver.input.dto';
+import { DRIVERS_PATH } from '../../../src/core/constants/paths.constants';
 import { getDriverDto } from '../../utils/drivers/get-driver-dto';
 import { generateBasicAuthToken } from '../../utils/generate-admin-auth-token';
 import { createDriver } from '../../utils/drivers/create-driver';
 import { clearDb } from '../../utils/clear-db';
 import { getDriverById } from '../../utils/drivers/get-driver-by-id';
 import { updateDriver } from '../../utils/drivers/update-driver';
-import { runDB } from '../../../src/db/mongo.db';
+import { runDB, stopDb } from '../../../src/db/mongo.db';
+import { SETTINGS } from '../../../src/settings/config';
 
 describe('Driver API', () => {
   const app = express();
@@ -20,8 +21,13 @@ describe('Driver API', () => {
   const adminToken = generateBasicAuthToken();
 
   beforeAll(async () => {
-    await runDB('mongodb://localhost:27017/ed-back-lessons-uber-test');
+    await runDB(SETTINGS.MONGO_URL);
     await clearDb(app);
+  });
+
+  // Закрываем соединение с БД, чтобы процесс тестов корректно завершался.
+  afterAll(async () => {
+    await stopDb();
   });
 
   it('✅ should create driver; POST /api/drivers', async () => {

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { HttpStatus } from '../../../core/types/http-statuses';
-import { createErrorMessages } from '../../../core/middlewares/validation/input-validtion-result.middleware';
+import { createErrorMessages } from '../../../core/middlewares/validation/input-validation-result.middleware';
 import { ridesRepository } from '../../repositories/rides.repository';
 
 export async function finishRideHandler(
@@ -21,6 +21,7 @@ export async function finishRideHandler(
       return;
     }
 
+    // Повторно завершить уже завершённую поездку нельзя.
     if (ride.finishedAt) {
       res
         .status(HttpStatus.BadRequest)
@@ -33,10 +34,10 @@ export async function finishRideHandler(
       return;
     }
 
-    await ridesRepository.finishedRide(id, new Date());
+    await ridesRepository.finishRide(id, new Date());
 
     res.sendStatus(HttpStatus.NoContent);
-  } catch (e: unknown) {
+  } catch {
     res.sendStatus(HttpStatus.InternalServerError);
   }
 }
