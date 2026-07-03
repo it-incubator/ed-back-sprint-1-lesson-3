@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { DriverInputDto } from '../../dto/driver.input.dto';
+import { DriverUpdateInput } from '../../dto/driver.input';
 import { HttpStatus } from '../../../core/types/http-statuses';
 import { driversRepository } from '../../repositories/drivers.repository';
 import { createErrorMessages } from '../../../core/middlewares/validation/input-validation-result.middleware';
-import { mapDriverInputDtoToDriver } from '../mappers/map-driver-input-dto-to-driver.util';
+import { mapDriverAttributesToDriver } from '../mappers/map-driver-attributes-to-driver.util';
 
 export async function updateDriverHandler(
-  req: Request<{ id: string }, {}, DriverInputDto>,
+  req: Request<{ id: string }, {}, DriverUpdateInput>,
   res: Response,
 ) {
   try {
@@ -24,8 +24,11 @@ export async function updateDriverHandler(
       return;
     }
 
-    // В репозиторий передаём доменный объект (проекцию DTO), а не сам DTO.
-    await driversRepository.update(id, mapDriverInputDtoToDriver(req.body));
+    // В репозиторий передаём доменный объект (проекцию атрибутов), а не сам DTO.
+    await driversRepository.update(
+      id,
+      mapDriverAttributesToDriver(req.body.data.attributes),
+    );
     res.sendStatus(HttpStatus.NoContent);
   } catch {
     res.sendStatus(HttpStatus.InternalServerError);

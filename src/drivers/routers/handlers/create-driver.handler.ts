@@ -1,19 +1,19 @@
 import { Request, Response } from 'express';
-import { DriverInputDto } from '../../dto/driver.input.dto';
+import { DriverCreateInput } from '../../dto/driver.input';
 import { HttpStatus } from '../../../core/types/http-statuses';
 import { driversRepository } from '../../repositories/drivers.repository';
 import { Driver } from '../../types/driver';
 import { mapToDriverViewModel } from '../mappers/map-to-driver-view-model.util';
-import { mapDriverInputDtoToDriver } from '../mappers/map-driver-input-dto-to-driver.util';
+import { mapDriverAttributesToDriver } from '../mappers/map-driver-attributes-to-driver.util';
 
 export async function createDriverHandler(
-  req: Request<{}, {}, DriverInputDto>,
+  req: Request<{}, {}, DriverCreateInput>,
   res: Response,
 ) {
   try {
-    // Проекция DTO -> доменная модель; дату создания добавляем здесь.
+    // Проекция входных атрибутов -> доменная модель; дату создания добавляем здесь.
     const newDriver: Driver = {
-      ...mapDriverInputDtoToDriver(req.body),
+      ...mapDriverAttributesToDriver(req.body.data.attributes),
       createdAt: new Date(),
     };
 

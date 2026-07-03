@@ -1,6 +1,7 @@
 import { Currency } from '../types/ride';
 
-export type RideInputDto = {
+// Атрибуты поездки во входном запросе на создание (JSON:API data.attributes).
+export type RideAttributes = {
   clientName: string;
   price: number;
   currency: Currency;

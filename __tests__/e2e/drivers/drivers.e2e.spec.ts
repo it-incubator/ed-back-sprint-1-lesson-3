@@ -3,7 +3,7 @@ import express from 'express';
 import { VehicleFeature } from '../../../src/drivers/types/driver';
 import { setupApp } from '../../../src/setup-app';
 import { HttpStatus } from '../../../src/core/types/http-statuses';
-import { DriverInputDto } from '../../../src/drivers/dto/driver.input.dto';
+import { DriverAttributes } from '../../../src/drivers/dto/driver-attributes';
 import { DRIVERS_PATH } from '../../../src/drivers/constants/drivers.paths';
 import { getDriverDto } from '../../utils/drivers/get-driver-dto';
 import { generateBasicAuthToken } from '../../utils/generate-admin-auth-token';
@@ -31,7 +31,7 @@ describe('Driver API', () => {
   });
 
   it('✅ should create driver; POST /api/drivers', async () => {
-    const newDriver: DriverInputDto = {
+    const newDriver: DriverAttributes = {
       ...getDriverDto(),
       name: 'Feodor',
       email: 'feodor@example.com',
@@ -49,26 +49,23 @@ describe('Driver API', () => {
       .set('Authorization', adminToken)
       .expect(HttpStatus.Ok);
 
-    expect(response.body).toBeInstanceOf(Array);
-    expect(response.body.length).toBeGreaterThanOrEqual(2);
+    // В JSON:API список ресурсов лежит в поле data.
+    expect(response.body.data).toBeInstanceOf(Array);
+    expect(response.body.data.length).toBeGreaterThanOrEqual(2);
   });
 
   it('✅ should return driver by id; GET /api/drivers/:id', async () => {
     const createdDriver = await createDriver(app);
 
-    const driver = await getDriverById(app, createdDriver.id);
+    const driver = await getDriverById(app, createdDriver.data.id);
 
-    expect(driver).toEqual({
-      ...createdDriver,
-      id: expect.any(String),
-      createdAt: expect.any(String),
-    });
+    expect(driver).toEqual(createdDriver);
   });
 
   it('✅ should update driver; PUT /api/drivers/:id', async () => {
     const createdDriver = await createDriver(app);
 
-    const driverUpdateData: DriverInputDto = {
+    const driverUpdateData: DriverAttributes = {
       name: 'Updated Name',
       phoneNumber: '999-888-7777',
       email: 'updated@example.com',
@@ -81,12 +78,12 @@ describe('Driver API', () => {
       vehicleFeatures: [VehicleFeature.ChildSeat],
     };
 
-    await updateDriver(app, createdDriver.id, driverUpdateData);
+    await updateDriver(app, createdDriver.data.id, driverUpdateData);
 
-    const driverResponse = await getDriverById(app, createdDriver.id);
+    const driverResponse = await getDriverById(app, createdDriver.data.id);
 
-    expect(driverResponse).toEqual({
-      id: createdDriver.id,
+    expect(driverResponse.data.id).toBe(createdDriver.data.id);
+    expect(driverResponse.data.attributes).toEqual({
       name: driverUpdateData.name,
       phoneNumber: driverUpdateData.phoneNumber,
       email: driverUpdateData.email,
@@ -106,12 +103,12 @@ describe('Driver API', () => {
     const createdDriver = await createDriver(app);
 
     await request(app)
-      .delete(`${DRIVERS_PATH}/${createdDriver.id}`)
+      .delete(`${DRIVERS_PATH}/${createdDriver.data.id}`)
       .set('Authorization', adminToken)
       .expect(HttpStatus.NoContent);
 
     await request(app)
-      .get(`${DRIVERS_PATH}/${createdDriver.id}`)
+      .get(`${DRIVERS_PATH}/${createdDriver.data.id}`)
       .set('Authorization', adminToken)
       .expect(HttpStatus.NotFound);
   });

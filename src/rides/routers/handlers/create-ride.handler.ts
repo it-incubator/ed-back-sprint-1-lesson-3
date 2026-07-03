@@ -1,19 +1,20 @@
 import { Request, Response } from 'express';
-import { RideInputDto } from '../../dto/ride.input.dto';
+import { RideCreateInput } from '../../dto/ride.input';
 import { driversRepository } from '../../../drivers/repositories/drivers.repository';
 import { HttpStatus } from '../../../core/types/http-statuses';
 import { createErrorMessages } from '../../../core/middlewares/validation/input-validation-result.middleware';
 import { ridesRepository } from '../../repositories/rides.repository';
 import { Ride } from '../../types/ride';
 import { mapToRideViewModel } from '../mappers/map-to-ride-view-model.util';
-import { mapRideInputDtoToRide } from '../mappers/map-ride-input-dto-to-ride.util';
+import { mapRideAttributesToRide } from '../mappers/map-ride-attributes-to-ride.util';
 
 export async function createRideHandler(
-  req: Request<{}, {}, RideInputDto>,
+  req: Request<{}, {}, RideCreateInput>,
   res: Response,
 ) {
   try {
-    const driverId = req.body.driverId;
+    const attributes = req.body.data.attributes;
+    const driverId = attributes.driverId;
 
     // Поездку можно создать только для существующего водителя.
     const driver = await driversRepository.findById(driverId);
@@ -45,9 +46,9 @@ export async function createRideHandler(
       return;
     }
 
-    // Проекция DTO + данные водителя -> доменная модель; служебные даты добавляем здесь.
+    // Проекция атрибутов + данные водителя -> доменная модель; служебные даты добавляем здесь.
     const newRide: Ride = {
-      ...mapRideInputDtoToRide(req.body, driver),
+      ...mapRideAttributesToRide(attributes, driver),
       createdAt: new Date(),
       updatedAt: null,
       startedAt: new Date(),

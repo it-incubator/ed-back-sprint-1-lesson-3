@@ -37,35 +37,32 @@ describe('Rides API', () => {
       .set('Authorization', adminToken)
       .expect(HttpStatus.Ok);
 
-    expect(rideListResponse.body).toBeInstanceOf(Array);
-    expect(rideListResponse.body).toHaveLength(2);
+    // В JSON:API список ресурсов лежит в поле data.
+    expect(rideListResponse.body.data).toBeInstanceOf(Array);
+    expect(rideListResponse.body.data).toHaveLength(2);
   });
 
   it('✅ should return ride by id; GET /api/rides/:id', async () => {
     const createdRide = await createRide(app);
 
-    const getRide = await getRideById(app, createdRide.id);
+    const getRide = await getRideById(app, createdRide.data.id);
 
-    expect(getRide).toEqual({
-      ...createdRide,
-      id: expect.any(String),
-      startedAt: expect.any(String),
-      finishedAt: null,
-    });
+    expect(getRide).toEqual(createdRide);
   });
 
   it('✅ should finish ride; POST /api/rides/:id/actions/finish', async () => {
     const createdRide = await createRide(app);
 
     await request(app)
-      .post(`${RIDES_PATH}/${createdRide.id}/actions/finish`)
+      .post(`${RIDES_PATH}/${createdRide.data.id}/actions/finish`)
       .set('Authorization', adminToken)
       .expect(HttpStatus.NoContent);
 
-    const getRide = await getRideById(app, createdRide.id);
+    const getRide = await getRideById(app, createdRide.data.id);
 
-    expect(getRide).toEqual({
-      ...createdRide,
+    // После завершения меняется только finishedAt, остальные атрибуты те же.
+    expect(getRide.data.attributes).toEqual({
+      ...createdRide.data.attributes,
       finishedAt: expect.any(String),
     });
   });

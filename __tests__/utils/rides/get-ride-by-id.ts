@@ -1,22 +1,18 @@
-// @ts-ignore
 import request from 'supertest';
 import { Express } from 'express';
 import { HttpStatus } from '../../../src/core/types/http-statuses';
 import { RIDES_PATH } from '../../../src/rides/constants/rides.paths';
 import { generateBasicAuthToken } from '../generate-admin-auth-token';
-import { RideViewModel } from '../../../src/rides/types/ride-view-model';
+import { RideOutput } from '../../../src/rides/dto/ride.output';
 
-export async function getRideById<R = RideViewModel>(
+export async function getRideById(
   app: Express,
   rideId: string,
-  expectedStatus?: HttpStatus,
-): Promise<R> {
-  const testStatus = expectedStatus ?? HttpStatus.Ok;
-
+): Promise<RideOutput> {
   const getResponse = await request(app)
     .get(`${RIDES_PATH}/${rideId}`)
     .set('Authorization', generateBasicAuthToken())
-    .expect(testStatus);
+    .expect(HttpStatus.Ok);
 
   return getResponse.body;
 }

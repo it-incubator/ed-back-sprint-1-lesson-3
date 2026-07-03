@@ -1,6 +1,8 @@
 import { VehicleFeature } from '../types/driver';
 
-export type DriverInputDto = {
+// Атрибуты водителя во входных запросах (JSON:API data.attributes).
+// Поля плоские: машина приходит отдельными vehicle*-полями.
+export type DriverAttributes = {
   name: string;
   phoneNumber: string;
   email: string;

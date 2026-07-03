@@ -7,6 +7,7 @@ import { clearDb } from '../../utils/clear-db';
 import { RIDES_PATH } from '../../../src/rides/constants/rides.paths';
 import { Currency } from '../../../src/rides/types/ride';
 import { runDB, stopDb } from '../../../src/db/mongo.db';
+import { ResourceType } from '../../../src/core/types/resource-type';
 import { SETTINGS } from '../../../src/settings/config';
 
 describe('Rides API body validation check', () => {
@@ -14,6 +15,11 @@ describe('Rides API body validation check', () => {
   setupApp(app);
 
   const adminToken = generateBasicAuthToken();
+
+  // Оборачивает атрибуты в JSON:API-конверт создания поездки.
+  const createBody = (attributes: object) => ({
+    data: { type: ResourceType.Rides, attributes },
+  });
 
   beforeAll(async () => {
     await runDB(SETTINGS.MONGO_URL);
@@ -27,21 +33,23 @@ describe('Rides API body validation check', () => {
 
   it(`❌ should not create ride when incorrect body passed; POST /api/rides'`, async () => {
     await request(app)
-      .post('/api/rides')
+      .post(RIDES_PATH)
       .send({})
       .expect(HttpStatus.Unauthorized);
 
     const invalidDataSet1 = await request(app)
       .post(RIDES_PATH)
       .set('Authorization', generateBasicAuthToken())
-      .send({
-        clientName: '   ', // empty string
-        price: 'bla bla', // not a number
-        currency: 1, // not a string
-        fromAddress: '', // empty string
-        toAddress: true, // not a string
-        driverId: 'bam', //not a number
-      })
+      .send(
+        createBody({
+          clientName: '   ', // empty string
+          price: 'bla bla', // not a number
+          currency: 1, // not a string
+          fromAddress: '', // empty string
+          toAddress: true, // not a string
+          driverId: 'bam', //not a valid ObjectId
+        }),
+      )
       .expect(HttpStatus.BadRequest);
 
     expect(invalidDataSet1.body.errorMessages).toHaveLength(6);
@@ -49,14 +57,16 @@ describe('Rides API body validation check', () => {
     const invalidDataSet2 = await request(app)
       .post(RIDES_PATH)
       .set('Authorization', generateBasicAuthToken())
-      .send({
-        clientName: 'LA', // short string
-        price: 0, // can not be 0
-        currency: 'byn', // not in Currency
-        fromAddress: 'street', // short string
-        driverId: 0, //can not be 0
-        toAddress: 'test address',
-      })
+      .send(
+        createBody({
+          clientName: 'LA', // short string
+          price: 0, // can not be 0
+          currency: 'byn', // not in Currency
+          fromAddress: 'street', // short string
+          driverId: 0, //can not be 0
+          toAddress: 'test address',
+        }),
+      )
       .expect(HttpStatus.BadRequest);
 
     expect(invalidDataSet2.body.errorMessages).toHaveLength(5);
@@ -64,14 +74,16 @@ describe('Rides API body validation check', () => {
     const invalidDataSet3 = await request(app)
       .post(RIDES_PATH)
       .set('Authorization', generateBasicAuthToken())
-      .send({
-        driverId: 5000, //driver should exist
-        clientName: 'Sam',
-        price: 100,
-        currency: Currency.USD,
-        fromAddress: 'test address',
-        toAddress: 'test address',
-      })
+      .send(
+        createBody({
+          driverId: 5000, //driver should be a valid ObjectId string
+          clientName: 'Sam',
+          price: 100,
+          currency: Currency.USD,
+          fromAddress: 'test address',
+          toAddress: 'test address',
+        }),
+      )
       .expect(HttpStatus.BadRequest);
 
     expect(invalidDataSet3.body.errorMessages).toHaveLength(1);
@@ -81,6 +93,6 @@ describe('Rides API body validation check', () => {
       .get(RIDES_PATH)
       .set('Authorization', adminToken);
 
-    expect(riderListResponse.body).toHaveLength(0);
+    expect(riderListResponse.body.data).toHaveLength(0);
   });
 });

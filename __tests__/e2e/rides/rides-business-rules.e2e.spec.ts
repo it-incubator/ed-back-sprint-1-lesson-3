@@ -9,6 +9,8 @@ import { clearDb } from '../../utils/clear-db';
 import { runDB, stopDb } from '../../../src/db/mongo.db';
 import { createDriver } from '../../utils/drivers/create-driver';
 import { getRideDto } from '../../utils/rides/get-ride-dto';
+import { ResourceType } from '../../../src/core/types/resource-type';
+import { RideCreateInput } from '../../../src/rides/dto/ride.input';
 import { SETTINGS } from '../../../src/settings/config';
 
 // Проверяем бизнес-правило: у водителя не может быть двух активных поездок одновременно,
@@ -18,6 +20,14 @@ describe('Rides API business rules', () => {
   setupApp(app);
 
   const adminToken = generateBasicAuthToken();
+
+  // Собирает JSON:API-тело запроса на создание поездки для указанного водителя.
+  const rideRequestFor = (driverId: string): RideCreateInput => ({
+    data: {
+      type: ResourceType.Rides,
+      attributes: getRideDto(driverId),
+    },
+  });
 
   beforeAll(async () => {
     await runDB(SETTINGS.MONGO_URL);
@@ -31,25 +41,26 @@ describe('Rides API business rules', () => {
   it('❌ should not create a second ride for a busy driver; DELETE busy driver is also forbidden', async () => {
     // 1. Создаём водителя и первую (активную) поездку для него.
     const driver = await createDriver(app);
+    const driverId = driver.data.id;
 
     const firstRideResponse = await request(app)
       .post(RIDES_PATH)
       .set('Authorization', adminToken)
-      .send(getRideDto(driver.id))
+      .send(rideRequestFor(driverId))
       .expect(HttpStatus.Created);
 
-    const rideId = firstRideResponse.body.id;
+    const rideId = firstRideResponse.body.data.id;
 
     // 2. Вторую поездку тому же водителю создать нельзя — он уже занят.
     await request(app)
       .post(RIDES_PATH)
       .set('Authorization', adminToken)
-      .send(getRideDto(driver.id))
+      .send(rideRequestFor(driverId))
       .expect(HttpStatus.BadRequest);
 
     // 3. Занятого водителя удалить нельзя.
     await request(app)
-      .delete(`${DRIVERS_PATH}/${driver.id}`)
+      .delete(`${DRIVERS_PATH}/${driverId}`)
       .set('Authorization', adminToken)
       .expect(HttpStatus.BadRequest);
 
@@ -59,11 +70,11 @@ describe('Rides API business rules', () => {
       .set('Authorization', adminToken)
       .expect(HttpStatus.NoContent);
 
-    // 5. Теперь и удаление водителя, и новая поездка снова доступны.
+    // 5. Теперь новая поездка снова доступна.
     await request(app)
       .post(RIDES_PATH)
       .set('Authorization', adminToken)
-      .send(getRideDto(driver.id))
+      .send(rideRequestFor(driverId))
       .expect(HttpStatus.Created);
   });
 });

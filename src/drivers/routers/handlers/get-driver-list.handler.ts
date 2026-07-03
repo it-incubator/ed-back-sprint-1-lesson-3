@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import { driversRepository } from '../../repositories/drivers.repository';
-import { mapToDriverViewModel } from '../mappers/map-to-driver-view-model.util';
+import { mapToDriverListViewModel } from '../mappers/map-to-driver-list-view-model.util';
 import { HttpStatus } from '../../../core/types/http-statuses';
 
 export async function getDriverListHandler(req: Request, res: Response) {
   try {
     const drivers = await driversRepository.findAll();
-    // Наружу отдаём view-model, а не «сырой» документ из БД.
-    const driverViewModels = drivers.map(mapToDriverViewModel);
+    // Наружу отдаём JSON:API-список ({ meta, data: [...] }), а не «сырые» документы из БД.
+    const driverViewModels = mapToDriverListViewModel(drivers);
     res.send(driverViewModels);
   } catch {
     res.sendStatus(HttpStatus.InternalServerError);
