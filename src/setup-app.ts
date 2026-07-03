@@ -5,6 +5,7 @@ import { DRIVERS_PATH } from './drivers/constants/drivers.paths';
 import { RIDES_PATH } from './rides/constants/rides.paths';
 import { TESTING_PATH } from './testing/constants/testing.paths';
 import { driversRouter } from './drivers/routers/drivers.router';
+import { setupSwagger } from './core/swagger/setup-swagger';
 
 export const setupApp = (app: Express) => {
   app.use(express.json());
@@ -13,4 +14,7 @@ export const setupApp = (app: Express) => {
   app.use(DRIVERS_PATH, driversRouter);
   app.use(RIDES_PATH, ridesRouter);
   app.use(TESTING_PATH, testingRouter);
+
+  // Swagger UI с документацией API (доступно по /api).
+  setupSwagger(app);
 };
