@@ -3,10 +3,8 @@ import request from 'supertest';
 import { setupApp } from '../../../src/setup-app';
 import { HttpStatus } from '../../../src/core/types/http-statuses';
 import { generateBasicAuthToken } from '../../utils/generate-admin-auth-token';
-import {
-  DRIVERS_PATH,
-  RIDES_PATH,
-} from '../../../src/core/constants/paths.constants';
+import { DRIVERS_PATH } from '../../../src/drivers/constants/drivers.paths';
+import { RIDES_PATH } from '../../../src/rides/constants/rides.paths';
 import { clearDb } from '../../utils/clear-db';
 import { runDB, stopDb } from '../../../src/db/mongo.db';
 import { createDriver } from '../../utils/drivers/create-driver';

@@ -4,7 +4,7 @@ import { VehicleFeature } from '../../../src/drivers/types/driver';
 import { setupApp } from '../../../src/setup-app';
 import { HttpStatus } from '../../../src/core/types/http-statuses';
 import { DriverInputDto } from '../../../src/drivers/dto/driver.input.dto';
-import { DRIVERS_PATH } from '../../../src/core/constants/paths.constants';
+import { DRIVERS_PATH } from '../../../src/drivers/constants/drivers.paths';
 import { getDriverDto } from '../../utils/drivers/get-driver-dto';
 import { generateBasicAuthToken } from '../../utils/generate-admin-auth-token';
 import { createDriver } from '../../utils/drivers/create-driver';

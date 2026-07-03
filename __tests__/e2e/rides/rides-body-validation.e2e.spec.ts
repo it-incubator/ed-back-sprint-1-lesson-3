@@ -4,7 +4,7 @@ import { setupApp } from '../../../src/setup-app';
 import { generateBasicAuthToken } from '../../utils/generate-admin-auth-token';
 import { HttpStatus } from '../../../src/core/types/http-statuses';
 import { clearDb } from '../../utils/clear-db';
-import { RIDES_PATH } from '../../../src/core/constants/paths.constants';
+import { RIDES_PATH } from '../../../src/rides/constants/rides.paths';
 import { Currency } from '../../../src/rides/types/ride';
 import { runDB, stopDb } from '../../../src/db/mongo.db';
 import { SETTINGS } from '../../../src/settings/config';

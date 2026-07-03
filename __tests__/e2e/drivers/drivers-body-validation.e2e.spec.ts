@@ -8,7 +8,7 @@ import { generateBasicAuthToken } from '../../utils/generate-admin-auth-token';
 import { getDriverDto } from '../../utils/drivers/get-driver-dto';
 import { clearDb } from '../../utils/clear-db';
 import { createDriver } from '../../utils/drivers/create-driver';
-import { DRIVERS_PATH } from '../../../src/core/constants/paths.constants';
+import { DRIVERS_PATH } from '../../../src/drivers/constants/drivers.paths';
 import { getDriverById } from '../../utils/drivers/get-driver-by-id';
 import { runDB, stopDb } from '../../../src/db/mongo.db';
 import { SETTINGS } from '../../../src/settings/config';

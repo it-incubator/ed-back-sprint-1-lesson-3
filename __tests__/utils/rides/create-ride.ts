@@ -5,7 +5,7 @@ import { Express } from 'express';
 import { RideInputDto } from '../../../src/rides/dto/ride.input.dto';
 import { createDriver } from '../drivers/create-driver';
 import { generateBasicAuthToken } from '../generate-admin-auth-token';
-import { RIDES_PATH } from '../../../src/core/constants/paths.constants';
+import { RIDES_PATH } from '../../../src/rides/constants/rides.paths';
 import { getRideDto } from './get-ride-dto';
 import { RideViewModel } from '../../../src/rides/types/ride-view-model';
 

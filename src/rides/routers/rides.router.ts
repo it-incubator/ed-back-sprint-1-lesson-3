@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { inputValidationResultMiddleware } from '../../core/middlewares/validation/input-validation-result.middleware';
 import { superAdminGuardMiddleware } from '../../auth/middlewares/super-admin.guard.middleware';
 import { idValidation } from '../../core/middlewares/validation/params-id.validation.middleware';
-import { ROUTE_PATHS } from '../../core/constants/paths.constants';
+import { RIDES_ROUTES } from '../constants/rides.paths';
 import { rideInputDtoValidation } from '../validation/ride.input-dto.validation-middlewares';
 import { createRideHandler } from './handlers/create-ride.handler';
 import { getRideListHandler } from './handlers/get-ride-list.handler';
@@ -15,26 +15,26 @@ export const ridesRouter = Router({});
 ridesRouter.use(superAdminGuardMiddleware);
 
 // Каждая цепочка: валидация -> проверка её результата -> handler.
-// Пути маршрутов берём из констант ROUTE_PATHS, а не из строковых литералов.
+// Пути маршрутов берём из констант модуля, а не из строковых литералов.
 ridesRouter
-  .get(ROUTE_PATHS.ROOT, getRideListHandler)
+  .get(RIDES_ROUTES.ROOT, getRideListHandler)
 
   .get(
-    ROUTE_PATHS.BY_ID,
+    RIDES_ROUTES.BY_ID,
     idValidation,
     inputValidationResultMiddleware,
     getRideHandler,
   )
 
   .post(
-    ROUTE_PATHS.ROOT,
+    RIDES_ROUTES.ROOT,
     rideInputDtoValidation,
     inputValidationResultMiddleware,
     createRideHandler,
   )
 
   .post(
-    ROUTE_PATHS.RIDE_FINISH,
+    RIDES_ROUTES.FINISH,
     idValidation,
     inputValidationResultMiddleware,
     finishRideHandler,

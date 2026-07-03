@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { Express } from 'express';
 import { HttpStatus } from '../../../src/core/types/http-statuses';
-import { DRIVERS_PATH } from '../../../src/core/constants/paths.constants';
+import { DRIVERS_PATH } from '../../../src/drivers/constants/drivers.paths';
 import { generateBasicAuthToken } from '../generate-admin-auth-token';
 import { DriverViewModel } from '../../../src/drivers/types/driver-view-model';
 

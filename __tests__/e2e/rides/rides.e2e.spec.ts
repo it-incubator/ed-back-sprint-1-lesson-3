@@ -3,7 +3,7 @@ import express from 'express';
 import { setupApp } from '../../../src/setup-app';
 import { HttpStatus } from '../../../src/core/types/http-statuses';
 import { generateBasicAuthToken } from '../../utils/generate-admin-auth-token';
-import { RIDES_PATH } from '../../../src/core/constants/paths.constants';
+import { RIDES_PATH } from '../../../src/rides/constants/rides.paths';
 import { clearDb } from '../../utils/clear-db';
 import { runDB, stopDb } from '../../../src/db/mongo.db';
 import { createRide } from '../../utils/rides/create-ride';

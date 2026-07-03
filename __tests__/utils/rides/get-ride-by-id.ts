@@ -2,7 +2,7 @@
 import request from 'supertest';
 import { Express } from 'express';
 import { HttpStatus } from '../../../src/core/types/http-statuses';
-import { RIDES_PATH } from '../../../src/core/constants/paths.constants';
+import { RIDES_PATH } from '../../../src/rides/constants/rides.paths';
 import { generateBasicAuthToken } from '../generate-admin-auth-token';
 import { RideViewModel } from '../../../src/rides/types/ride-view-model';
 

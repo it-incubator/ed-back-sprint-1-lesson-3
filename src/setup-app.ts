@@ -1,11 +1,9 @@
 import express, { Express } from 'express';
 import { testingRouter } from './testing/routes/testing.route';
 import { ridesRouter } from './rides/routers/rides.router';
-import {
-  DRIVERS_PATH,
-  RIDES_PATH,
-  TESTING_PATH,
-} from './core/constants/paths.constants';
+import { DRIVERS_PATH } from './drivers/constants/drivers.paths';
+import { RIDES_PATH } from './rides/constants/rides.paths';
+import { TESTING_PATH } from './testing/constants/testing.paths';
 import { driversRouter } from './drivers/routers/drivers.router';
 
 export const setupApp = (app: Express) => {
